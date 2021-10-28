@@ -1,0 +1,21 @@
+service: job-clear-frequency
+frameworkVersion: "2"
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+
+functions:
+  job-clear-frequency:
+    handler: handler.handler
+    events:
+      - http:
+          path: /
+          method: get
+          cors: true
+      - http:
+          path: /{proxy+}
+          method: any
+          cors: true
+plugins:
+  - serverless-offline
