@@ -1,6 +1,6 @@
 const express = require("express");
 const { waveform, surveys } = require("../config/db");
-const { fixNormalize } = require("../utils/utils.math");
+const { fixNormalize,calcFft } = require("../utils/utils.math");
 
 const routes = express.Router({
   mergeParams: true,
@@ -9,7 +9,9 @@ const routes = express.Router({
 routes.get("/", async (req, res) => {
   let result = await getWaveforms();
   for (let i = 0; i < result.length; i++) {
-    fixNormalize(result[i].dataValues.waveforms_accelerations);
+    //fixNormalize(result[i].dataValues.waveforms_accelerations);
+    calcFft(result[i].dataValues.waveforms_accelerations);
+      break;
   }
   res.json({
     success: true,
@@ -19,7 +21,7 @@ routes.get("/", async (req, res) => {
 async function getWaveforms() {
   return await surveys.findAll({
     limit: 1,
-    where: { state: 0 },
+    where: { state: 1,  row_survey: 17584  },
     include: [waveform],
   });
 }
