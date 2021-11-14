@@ -86,13 +86,19 @@ const calcFft = async (curve) => {
 
     const magnitudes = fftUtil.fftMag(phasors);
     console.log("magnitudes", magnitudes.length);
-
-    for (let i = 0; i < magnitudes.length; i++) {
+    
+    magnitudes.map((element,i) => {
       data.push({
         x: dataX[i],
-        y: magnitudes[i],
+        y: element[i],
       });
-    }
+    });
+    // for (let i = 0; i < magnitudes.length; i++) {
+    //   data.push({
+    //     x: dataX[i],
+    //     y: magnitudes[i],
+    //   });
+    // }
     result.row_point = row_point;
     result.data = data;
     console.log("data ", result.data.length);
