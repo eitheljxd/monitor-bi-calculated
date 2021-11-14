@@ -2,8 +2,8 @@ const { createModel } = require("polynomial-regression");
 const { evaluate } = require("mathjs");
 const fs = require("fs");
 var fft = require("fft-js").fft,
-  fftUtil = require("fft-js").util,
-  signal = [1, 0, 1, 0];
+  fftUtil = require("fft-js").util;
+const FIXED_MULTIPLIER_VS = 670.0;
 
 const fixNormalize = async (curve) => {
   let data = [];
@@ -49,18 +49,12 @@ const fixNormalize = async (curve) => {
 
 const calcFft = async (curve) => {
   let consolid = [];
-
-  // curve.map((a) => {
-  //   console.log("sd", a);
-  //   data.push(Number(a.dataValues.wfa_measure_Y));
-  //   return;
-  // });
   let points = [];
   //Extract the points
-  for (let index = 0; index < curve.length; index++) {
-    var ob = points.findIndex((x) => x == curve[index].dataValues.row_point);
-    ob === -1 ? points.push(curve[index].dataValues.row_point) : null;
-  }
+  curve.map((object) => {
+    var ob = points.findIndex((x) => x == object.dataValues.row_point);
+    ob === -1 ? points.push(object.dataValues.row_point) : null;
+  });
   // Search data for each points
   for (let index = 0; index < points.length; index++) {
     let data = [];
@@ -79,29 +73,19 @@ const calcFft = async (curve) => {
         dataX.push(Number(o.dataValues.wfa_measure_x));
       }
     });
-    console.log("row_point", row_point);
 
     var phasors = fft(dataY);
-    console.log("phasors", phasors.length);
-
     const magnitudes = fftUtil.fftMag(phasors);
-    console.log("magnitudes", magnitudes.length);
-    
-    magnitudes.map((element,i) => {
+
+    magnitudes.map((object, i) => {
       data.push({
         x: dataX[i],
-        y: element[i],
+        y: object,
       });
     });
-    // for (let i = 0; i < magnitudes.length; i++) {
-    //   data.push({
-    //     x: dataX[i],
-    //     y: magnitudes[i],
-    //   });
-    // }
+
     result.row_point = row_point;
     result.data = data;
-    console.log("data ", result.data.length);
     consolid.push(result);
   }
 
@@ -110,7 +94,6 @@ const calcFft = async (curve) => {
 
 const integrateAcceleration = async (curve) => {
   let consolid = [];
-  const FIXED_MULTIPLIER_VS = 670.0;
   curve.map((row) => {
     const row_point = row.row_point;
     let result = {
@@ -128,29 +111,11 @@ const integrateAcceleration = async (curve) => {
     result.data = dataAux;
     consolid.push(result);
   });
-  // for (let i = 0; i < curve.length; i++) {
-  //     const row_point = curve[i].row_point;
-  //     let result = {
-  //       row_point: row_point,
-  //       data : []
-  //     };
-  //     let dataAux = [];
-  //     const data = curve[i].data;
-  //     data.forEach(function (object, i) {
-  //       dataAux.push({
-  //         x: object.x,
-  //         y: (object.y / (FIXED_MULTIPLIER_VS * (i+ 1))),
-  //       });
-  //     });
-  //     result.data = dataAux;
-  //     consolid.push(result);
-  // }
   return consolid;
 };
 
 const integrateVelocity = async (curve) => {
   let consolid = [];
-  const FIXED_MULTIPLIER_VS = 670.0;
   curve.map((row) => {
     const row_point = row.row_point;
     let result = {
@@ -162,12 +127,13 @@ const integrateVelocity = async (curve) => {
     data.map((object, i) => {
       dataAux.push({
         x: object.x,
-        y: FIXED_MULTIPLIER_VS * (object.y / ((2 * Math.PI) * (i + 1)),
+        y: FIXED_MULTIPLIER_VS * (object.y / (2 * Math.PI * (i + 1))),
       });
     });
     result.data = dataAux;
     consolid.push(result);
   });
+  return consolid;
 };
 // Or
 
