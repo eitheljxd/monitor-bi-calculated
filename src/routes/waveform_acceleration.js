@@ -15,7 +15,6 @@ const routes = express.Router({
 
 routes.get("/", async (req, res) => {
   let result = await getWaveforms();
-  console.log(result.length);
   for (let i = 0; i < result.length; i++) {
     let data = {
       survey: result[i].dataValues.row_survey,
